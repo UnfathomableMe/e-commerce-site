@@ -1,47 +1,53 @@
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema;
+const express = require("express");
+const router = express.Router();
+var multer = require('multer');
 
-const productSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      trim: true,
-      required: true,
-      maxlength: 32
-    },
-    description: {
-      type: String,
-      trim: true,
-      required: true,
-      maxlength: 2000
-    },
-    price: {
-      type: Number,
-      required: true,
-      maxlength: 32,
-      trim: true
-    },
-    category: {
-      type: ObjectId,
-      ref: "Category",
-      required: true
-    },
-    stock: {
-      type: Number
-    },
-    sold: {
-      type: Number,
-      default: 0
-    },
-    photo: {
-      data: Buffer,
-      contentType: String
-    },
-    productImagePath:{
-      type: String
-    }
+const storage = multer.diskStorage({
+  destination: function(req, file, cb){
+    cb(null,'./uploads');
   },
-  { timestamps: true }
+  filename: function(req, file, cb){
+    cb(null,file.originalname);
+  }
+});
+
+var upload = multer({storage: storage})
+const {
+  getProductById,
+  createProduct,
+  getAllproduct,
+  getProduct,
+  photo,
+  updateProduct,
+  deleteProduct,
+  getAllProducts,
+  getAllUniqueCategories
+} = require("../controller/product");
+
+
+//all of params
+
+router.param("productId", getProductById);
+
+//all of actual routes
+//create route
+router.post("/product/create", upload.single('productImage'),createProduct);
+
+router.get(
+    "/product",
+    getAllproduct
+  );
+
+// // read routes
+router.get("/product/:productId", getProduct);
+
+
+// //delete route
+router.delete(
+  "/product/:productId",
+  deleteProduct
 );
 
-module.exports = mongoose.model("Product", productSchema);
+
+
+module.exports = router;
