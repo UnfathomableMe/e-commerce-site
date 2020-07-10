@@ -1,35 +1,35 @@
-const { Order, ProductCart } = require("../model/order");
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema;
 
-exports.getOrderById = (req, res, next, id) => {
-  Order.find({user:id})
-    .populate("products.product", "name price")
-    .exec((err, order) => {
-      if (err) {
-        return res.status(400).json({
-          error: "NO order found in DB"
-        });
-      }
-      req.order = order;
-      next();
-    });
-};
+const ProductCartSchema = new mongoose.Schema({
+  product: {
+    type: ObjectId,
+    ref: "Product"
+  },
+  name: String,
+  count: Number,
+  price: Number
+});
 
-exports.createOrder = (req, res) => {
-    const order = new Order(req.body);
- // const order = new Order(req.body.order);
-  order.save((err, order) => {
-    if (err) {
-      return res.status(400).json({
-        error: "Failed to save your order in DB"
-      });
+const ProductCart = mongoose.model("ProductCart", ProductCartSchema);
+
+const OrderSchema = new mongoose.Schema(
+  {
+    products: [ProductCartSchema],
+    amount: { type: Number },
+    address: String,
+    status: {
+      type: String,
+      default: "Recieved"
+    },
+    user: {
+      type: ObjectId,
+      ref: "User"
     }
-    res.json(order);
-  });
-};
+  },
+  { timestamps: true }
+);
 
+const Order = mongoose.model("Order", OrderSchema);
 
-
-exports.getOrder = (req, res) => {
- 
-  return res.json(req.order);
-};
+module.exports = { Order, ProductCart };
