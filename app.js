@@ -32,6 +32,5 @@ app.use("/api", productRoutes);
 app.use('/uploads',express.static('uploads'));
 app.use("/api",authRoutes);
 app.use("/api", orderRoutes);
-
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
 
